@@ -36,15 +36,44 @@ ENV EFFCEE_BRANCH=master
 ENV EFFCEE_REPO=https://github.com/google/effcee.git
 ENV EFFCEE_COMMIT=8f0a61dc95e0df18c18e0ac56d83b3fa9d2fe90b
 
-# Download command libraries and tools
+ENV WINE_BRANCH=dxil
+ENV WINE_REPO=https://github.com/gwihlidal/wine.git
+ENV WINE_COMMIT=4777a57d8a5fd2c0aa0ba06abb9148f77b9c2ddf
+
+ENV SMOLV_BRANCH=master
+ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
+ENV SMOLV_COMMIT=9a787d1354a9e43c9ea6027cd310ce2a2fd78901
+
+ENV VULKAN_SDK=1.1.92.1
+
+# Prevents annoying debconf errors during builds
+ARG DEBIAN_FRONTEND="noninteractive"
+
+# Download libraries and tools
 RUN apt-get update && \
 	apt-get install -y \
-	software-properties-common \
-	build-essential \
-	git \
-	cmake \
-	ninja-build \
-	python
+		software-properties-common \
+		build-essential \
+		git \
+		cmake \
+		ninja-build \
+		python \
+		wget \
+		unzip \
+		# Required for Wine
+		flex \
+		bison \
+		libpng-dev \
+		# Required for Vulkan
+		libwayland-dev \
+		libx11-dev \
+		libxrandr-dev \
+	# Clean up
+	&& apt autoremove -y \
+		software-properties-common \
+	&& apt autoclean \
+	&& apt clean \
+	&& apt autoremove
 
 # Download and build DXC
 RUN git clone --recurse-submodules -b ${DXC_BRANCH} ${DXC_REPO} /dxc && cd /dxc \
@@ -86,69 +115,71 @@ RUN mkdir -p /shaderc/build && cd /shaderc/build && \
 	ninja install
 
 # Download and build SMOL-V
-ENV SMOLV_BRANCH=master
-ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
-ENV SMOLV_COMMIT=9a787d1354a9e43c9ea6027cd310ce2a2fd78901
-
 WORKDIR /smol-v
 RUN git clone --recurse-submodules -b ${SMOLV_BRANCH} ${SMOLV_REPO} /app/smol-v && cd /app/smol-v && \
 	git checkout ${SMOLV_COMMIT} && git reset --hard && \
 	make -f projects/Makefile -j 4
 
+# Download and install Wine (for running FXC, DXIL signing tool, RGA for Windows)
+WORKDIR /wine_src
+RUN git clone --recurse-submodules -b ${WINE_BRANCH} ${WINE_REPO} /wine_src && \
+	git checkout ${WINE_COMMIT} && \
+	git reset --hard && \
+	./configure --enable-win64 --with-png --without-freetype --without-x --prefix=/wine && \
+	make -j8 && \
+	make install
+
+# Download and build Vulkan SDK
+WORKDIR /
+RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK}.tar.gz && \
+	tar zxf vulkan.tgz && \
+	mv ${VULKAN_SDK} vulkan && \
+	rm vulkan.tgz && \
+	cd /vulkan && \
+	chmod +x setup-env.sh && \
+	chmod +x build_tools.sh && \
+	./setup-env.sh && ./build_tools.sh
+
+# Download and extract signing tool
+WORKDIR /
+RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.2/dxil-signing-0_1_2.zip && \
+	unzip -q signing.zip; exit 0
+RUN mv dxil-signing-0_1_2 signing
+
+# Download and extract Linux and Windows binaries of AMD RGA
+WORKDIR /rga
+RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-linux-2.0.1.tgz && \
+	tar zxf rga_linux.tgz && \
+	mv rga-2.0.1.* linux && \
+	rm rga_linux.tgz && \
+	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-windows-x64-2.0.1.zip && \
+	unzip -q rga_windows.zip; exit 0
+RUN mv bin windows && \
+	# Remove GUI binaries
+	rm -f /rga/rga_windows.zip && \
+	rm -f /rga/windows/Qt* && \
+	rm -f /rga/windows/RadeonGPUAnalyzerGUI.exe && \
+	rm -fr /rga/windows/iconengines && \
+	rm -fr /rga/windows/imageformats && \
+	rm -fr /rga/windows/platforms && \
+	rm -fr /rga/linux/Qt && \
+	rm -fr /rga/linux/Documentation && \
+	rm -f /rga/linux/RadeonGPUAnalyzerGUI-bin && \
+	rm -f /rga/linux/RadeonGPUAnalyzerGUI
+
 # Start from a new image
 FROM ubuntu:18.04
 
-# Prevents annoying debconf errors during builds
-ARG DEBIAN_FRONTEND="noninteractive"
-
-ENV VULKAN_SDK=1.1.92
-
-# Download common libraries and tools
-RUN dpkg --add-architecture i386 \
-	&& apt update \
+# Apply updates
+RUN apt update \
 	&& apt install -y \
-		# Required for adding and building repositories
-		software-properties-common \
-		pkg-config \
-		build-essential \
-		unzip \
-		wget \
-		curl \
-		git \
-		# Required for wine
-		flex \
-		bison \
+		# Required for Wine
 		libpng-dev \
-	# Install Vulkan SDK
-	&& wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add - \
-	&& wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_SDK}-bionic.list http://packages.lunarg.com/vulkan/${VULKAN_SDK}/lunarg-vulkan-${VULKAN_SDK}-bionic.list \
-	&& apt update && apt install -y lunarg-vulkan-sdk \
 	# Clean up
 	&& apt autoremove -y \
-		software-properties-common \
 	&& apt autoclean \
 	&& apt clean \
 	&& apt autoremove
-
-WORKDIR /app
-RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.2/dxil-signing-0_1_2.zip && \
-	unzip -q signing.zip; exit 0
-RUN mv dxil-signing-0_1_2 signing && rm -f signing.zip
-
-# Download and install Wine (for running FXC, DXIL signing tool, RGA for Windows)
-ENV WINE_BRANCH=dxil
-ENV WINE_REPO=https://github.com/gwihlidal/wine.git
-ENV WINE_COMMIT=4777a57d8a5fd2c0aa0ba06abb9148f77b9c2ddf
-ENV WINEARCH=win64
-ENV WINEDEBUG=fixme-all
-WORKDIR /wine
-RUN git clone --recurse-submodules -b ${WINE_BRANCH} ${WINE_REPO} /wine && \
-	git checkout ${WINE_COMMIT} && \
-	git reset --hard && \
-	./configure --enable-win64 --with-png --without-freetype && \
-	make -j8 && \
-	make install && \
-	winecfg
 
 # Copy DXC binaries from `builder` stage into final stage
 WORKDIR /app/dxc
@@ -158,25 +189,31 @@ RUN ln -s /dxc/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so
 
 # Copy glslc binary from `builder` stage into final stage
 WORKDIR /app/shaderc
-COPY --from=builder /app/shaderc/build/glslc/glslc /app/shaderc/glslc
+COPY --from=builder /shaderc/build/glslc/glslc /app/shaderc/glslc
 
-# Copy smol-v binary from `builder` stage into final stage
+# Copy SMOL-V binaries from `builder` stage into final stage
 WORKDIR /app/smol-v
-COPY --from=builder /app/smol-v/smolv /app/smol-v/smolv
+COPY --from=builder /app/smol-v /app/smol-v
 
-# Copy FXC binaries into container
+# Copy Vulkan install binaries from `builder` stage into final stage
+WORKDIR /app/vulkan
+COPY --from=builder /vulkan/x86_64/bin /app/vulkan
+
+# Copy Wine install from `builder` stage into final stage
+WORKDIR /app/wine
+COPY --from=builder /wine /app/wine
+
+# Copy DXIL signing binaries from `builder` stage into final stage
+WORKDIR /app/signing
+COPY --from=builder /signing /app/signing
+
+# Copy RGA binaries from `builder` stage into final stage
+WORKDIR /app/rga
+COPY --from=builder /rga /app/rga
+
+# Copy local FXC binaries into container
 WORKDIR /app/fxc
 COPY fxc_bin /app/fxc
-
-# Download Linux and Windows binaries of AMD RGA
-WORKDIR /app/rga
-RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-linux-2.0.1.tgz && \
-	tar zxf rga_linux.tgz && \
-	mv rga-2.0.1.* linux && \
-	rm rga_linux.tgz && \
-	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-windows-x64-2.0.1.zip && \
-	unzip -q rga_windows.zip; exit 0
-RUN mv bin windows && rm -f /app/rga/rga_windows.zip
 
 # Convenient path variables
 ENV DXC_PATH="/app/dxc/bin/dxc"
@@ -186,6 +223,13 @@ ENV RGA_WIN_PATH="/app/rga/windows/rga.exe"
 ENV RGA_NIX_PATH="/app/rga/linux/rga"
 ENV GLSLC_PATH="/app/shaderc/glslc"
 ENV SMOLV_PATH="/app/smol-v/smolv"
+ENV WINE_PATH="/app/wine/bin/wine64"
+ENV VULKAN_PATH="/app/vulkan"
+
+# Configuration of Wine
+ENV WINEARCH=win64
+ENV WINEDEBUG=fixme-all
+RUN /app/wine/bin/winecfg
 
 WORKDIR /app
 ENTRYPOINT ["/bin/bash"]
