@@ -38,7 +38,7 @@ ENV EFFCEE_COMMIT=8f0a61dc95e0df18c18e0ac56d83b3fa9d2fe90b
 
 ENV WINE_BRANCH=dxil
 ENV WINE_REPO=https://github.com/gwihlidal/wine.git
-ENV WINE_COMMIT=4777a57d8a5fd2c0aa0ba06abb9148f77b9c2ddf
+ENV WINE_COMMIT=d2847c40d93a4a6d53f243b9c09ee582015b5ff4
 
 ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
