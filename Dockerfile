@@ -168,7 +168,7 @@ RUN mv bin windows && \
 	rm -f /rga/linux/RadeonGPUAnalyzerGUI
 
 # Start from a new image
-FROM debian:stretch-slim
+FROM ubuntu:bionic
 
 # Apply updates
 RUN apt update && \
@@ -176,8 +176,8 @@ RUN apt update && \
 	  # Required for Wine
 	  libpng-dev \
     # Clean up
-	&& apt-get clean \
-    && apt-get autoremove
+	&& apt clean \
+    && apt autoremove
 
 # Copy DXC binaries from `builder` stage into final stage
 WORKDIR /app/dxc
