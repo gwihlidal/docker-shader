@@ -168,7 +168,7 @@ RUN mv bin windows && \
 	rm -f /rga/linux/RadeonGPUAnalyzerGUI
 
 # Start from a new image
-FROM debian:jessie-slim
+FROM debian:stretch-slim
 
 # Apply updates
 RUN apt update && \
