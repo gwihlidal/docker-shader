@@ -168,18 +168,16 @@ RUN mv bin windows && \
 	rm -f /rga/linux/RadeonGPUAnalyzerGUI
 
 # Start from a new image
-FROM ubuntu:18.04
+FROM debian:jessie-slim
 
 # Apply updates
-RUN apt update \
-	&& apt install -y \
-		# Required for Wine
-		libpng-dev \
-	# Clean up
-	&& apt autoremove -y \
-	&& apt autoclean \
-	&& apt clean \
-	&& apt autoremove
+RUN apt update && \
+    apt install --no-install-recommends -y  \
+	  # Required for Wine
+	  libpng-dev \
+    # Clean up
+	&& apt-get clean \
+    && apt-get autoremove
 
 # Copy DXC binaries from `builder` stage into final stage
 WORKDIR /app/dxc
