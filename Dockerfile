@@ -2,35 +2,35 @@
 # https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
 # https://www.wihlidal.com/blog/pipeline/2018-09-17-linux-fxc-docker/
 
-FROM ubuntu:18.04 as builder
+FROM ubuntu:bionic as builder
 
 ENV DXC_BRANCH=master
 ENV DXC_REPO=https://github.com/Microsoft/DirectXShaderCompiler.git
-ENV DXC_COMMIT=cd237f5c3f7e8390fafff122333423afe55bc6c7
+ENV DXC_COMMIT=3faf581d0ba031f62b054b1c09ccb1a9aa0e1305
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
-ENV SHADERC_COMMIT=53c776f776821bc037b31b8b3b79db2fa54b4ce7
+ENV SHADERC_COMMIT=b9e151baf0cff85bb1941c5568c22026339f7720
 
 ENV GOOGLE_TEST_BRANCH=master
 ENV GOOGLE_TEST_REPO=https://github.com/google/googletest.git
-ENV GOOGLE_TEST_COMMIT=c6cb7e033591528a5fe2c63157a0d8ce927740dc
+ENV GOOGLE_TEST_COMMIT=3880b13e4c0b04ca88f69b9c93da6058bd836c34
 
 ENV GLSLANG_BRANCH=master
 ENV GLSLANG_REPO=https://github.com/google/glslang.git
-ENV GLSLANG_COMMIT=667506a5eae80931290c2f424888cc5f52fec5d1
+ENV GLSLANG_COMMIT=6eab476e5adcad71cf8b46a875eedd164f201c5d
 
 ENV SPV_TOOLS_BRANCH=master
 ENV SPV_TOOLS_REPO=https://github.com/KhronosGroup/SPIRV-Tools.git
-ENV SPV_TOOLS_COMMIT=c512c6864080ff617afb422a3d04dd902809a6cf
+ENV SPV_TOOLS_COMMIT=a87d3ce48e88a653e855c3245a6b68deeae58efc
 
 ENV SPV_HEADERS_BRANCH=master
 ENV SPV_HEADERS_REPO=https://github.com/KhronosGroup/SPIRV-Headers.git
-ENV SPV_HEADERS_COMMIT=17da9f8231f78cf519b4958c2229463a63ead9e2
+ENV SPV_HEADERS_COMMIT=46a3ae6dffc6f217a52e25556dba3d76f5634d61
 
 ENV RE2_BRANCH=master
 ENV RE2_REPO=https://github.com/google/re2.git
-ENV RE2_COMMIT=fadc34500b67414df452c54d980372242f3d7f57
+ENV RE2_COMMIT=2cf86e5ab6dcfe045a1f510c2b9a8b012a4158cd
 
 ENV EFFCEE_BRANCH=master
 ENV EFFCEE_REPO=https://github.com/google/effcee.git
@@ -38,7 +38,7 @@ ENV EFFCEE_COMMIT=8f0a61dc95e0df18c18e0ac56d83b3fa9d2fe90b
 
 ENV WINE_BRANCH=dxil
 ENV WINE_REPO=https://github.com/gwihlidal/wine.git
-ENV WINE_COMMIT=d2847c40d93a4a6d53f243b9c09ee582015b5ff4
+ENV WINE_COMMIT=052778ed354f39f688ecbda488a9164afd76484c
 
 ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git

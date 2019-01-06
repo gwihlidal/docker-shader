@@ -1,8 +1,8 @@
 NS = gwihlidal
 VERSION ?= latest
 
-REPO = shader
-NAME = shader
+REPO = docker-shader
+NAME = docker-shader
 INSTANCE = default
 
 .PHONY: build push shell run start stop rm release cloud-build
