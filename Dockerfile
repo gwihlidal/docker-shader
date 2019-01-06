@@ -6,9 +6,7 @@ FROM ubuntu:bionic as builder
 
 ENV DXC_BRANCH=master
 ENV DXC_REPO=https://github.com/Microsoft/DirectXShaderCompiler.git
-#ENV DXC_COMMIT=3faf581d0ba031f62b054b1c09ccb1a9aa0e1305
-# ISSUE: https://github.com/Microsoft/DirectXShaderCompiler/issues/1821
-ENV DXC_COMMIT=cd237f5c3f7e8390fafff122333423afe55bc6c7
+ENV DXC_COMMIT=3faf581d0ba031f62b054b1c09ccb1a9aa0e1305
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
@@ -183,9 +181,10 @@ RUN apt update && \
 
 # Copy DXC binaries from `builder` stage into final stage
 WORKDIR /app/dxc
-COPY --from=builder /dxc/build/bin/dxc /app/dxc/bin/dxc
+COPY --from=builder /dxc/build/bin/dxc-3.7 /app/dxc/bin/dxc-3.7
 COPY --from=builder /dxc/build/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so.3.7
-RUN ln -s /dxc/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so
+RUN ln -s /app/dxc/bin/dxc-3.7 /app/dxc/bin/dxc
+RUN ln -s /app/dxc/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so
 
 # Copy glslc binary from `builder` stage into final stage
 WORKDIR /app/shaderc
