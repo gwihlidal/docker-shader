@@ -5,8 +5,8 @@
 FROM ubuntu:bionic as builder
 
 ENV DXC_BRANCH=NV_ray_tracing_v2
-ENV DXC_REPO=https://github.com/gwihlidal/DirectXShaderCompiler.git
-ENV DXC_COMMIT=77106f54303d000a10da673f1de0876470ea0fd3
+ENV DXC_REPO=https://github.com/sparmarNV/DirectXShaderCompiler.git
+ENV DXC_COMMIT=8d41a8cc880b63717e973096bf2f8275e23a9ee3
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
