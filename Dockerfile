@@ -4,37 +4,37 @@
 
 FROM ubuntu:bionic as builder
 
-ENV DXC_BRANCH=NV_ray_tracing_v2
-ENV DXC_REPO=https://github.com/sparmarNV/DirectXShaderCompiler.git
-ENV DXC_COMMIT=8d41a8cc880b63717e973096bf2f8275e23a9ee3
+ENV DXC_BRANCH=NV_ray_tracing_final
+ENV DXC_REPO=https://github.com/gwihlidal/DirectXShaderCompiler.git
+ENV DXC_COMMIT=bf1bb935034b398396434a094a3d0650b34f3514
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
-ENV SHADERC_COMMIT=b9e151baf0cff85bb1941c5568c22026339f7720
+ENV SHADERC_COMMIT=419517b1595ffcf14c6098c3c1af09e7033e09df
 
 ENV GOOGLE_TEST_BRANCH=master
 ENV GOOGLE_TEST_REPO=https://github.com/google/googletest.git
-ENV GOOGLE_TEST_COMMIT=3880b13e4c0b04ca88f69b9c93da6058bd836c34
+ENV GOOGLE_TEST_COMMIT=d850e144710e330070b756c009749dc7a7302301
 
 ENV GLSLANG_BRANCH=master
 ENV GLSLANG_REPO=https://github.com/google/glslang.git
-ENV GLSLANG_COMMIT=6eab476e5adcad71cf8b46a875eedd164f201c5d
+ENV GLSLANG_COMMIT=9983f99e87ab0b6608b236ea59bcf873f90e1435
 
 ENV SPV_TOOLS_BRANCH=master
 ENV SPV_TOOLS_REPO=https://github.com/KhronosGroup/SPIRV-Tools.git
-ENV SPV_TOOLS_COMMIT=a87d3ce48e88a653e855c3245a6b68deeae58efc
+ENV SPV_TOOLS_COMMIT=6d20f625702698dda6b5cda29dfadb9aa1f40092
 
 ENV SPV_HEADERS_BRANCH=master
 ENV SPV_HEADERS_REPO=https://github.com/KhronosGroup/SPIRV-Headers.git
-ENV SPV_HEADERS_COMMIT=46a3ae6dffc6f217a52e25556dba3d76f5634d61
+ENV SPV_HEADERS_COMMIT=8bea0a266ac9b718aa0818d9e3a47c0b77c2cb23
 
 ENV RE2_BRANCH=master
 ENV RE2_REPO=https://github.com/google/re2.git
-ENV RE2_COMMIT=2cf86e5ab6dcfe045a1f510c2b9a8b012a4158cd
+ENV RE2_COMMIT=79ef3b2d31f06493f687ef9e947d9632bad54b9b
 
 ENV EFFCEE_BRANCH=master
 ENV EFFCEE_REPO=https://github.com/google/effcee.git
-ENV EFFCEE_COMMIT=8f0a61dc95e0df18c18e0ac56d83b3fa9d2fe90b
+ENV EFFCEE_COMMIT=b83b58d177b797edd1f94c5f10837f2cc2863f0a
 
 ENV WINE_BRANCH=dxil
 ENV WINE_REPO=https://github.com/gwihlidal/wine.git
@@ -44,7 +44,7 @@ ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
 ENV SMOLV_COMMIT=9a787d1354a9e43c9ea6027cd310ce2a2fd78901
 
-ENV VULKAN_SDK=1.1.92.1
+ENV VULKAN_SDK=1.1.97.0
 
 # Prevents annoying debconf errors during builds
 ARG DEBIAN_FRONTEND="noninteractive"
