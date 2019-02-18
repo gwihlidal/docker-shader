@@ -142,9 +142,9 @@ RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/v
 
 # Download and extract signing tool
 WORKDIR /
-RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.2/dxil-signing-0_1_2.zip && \
+RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.3/dxil-signing-0_1_3.zip && \
 	unzip -q signing.zip; exit 0
-RUN mv dxil-signing-0_1_2 signing
+RUN mv dxil-signing-0_1_3 signing
 
 # Download and extract Linux and Windows binaries of AMD RGA
 WORKDIR /rga
@@ -217,7 +217,7 @@ COPY fxc_bin /app/fxc
 # Convenient path variables
 ENV DXC_PATH="/app/dxc/bin/dxc"
 ENV FXC_PATH="/app/fxc/fxc.exe"
-ENV SIGN_PATH="/app/signing/dxil-signing.exe"
+ENV SIGN_PATH="/app/signing/dxil-val.exe"
 ENV RGA_WIN_PATH="/app/rga/windows/rga.exe"
 ENV RGA_NIX_PATH="/app/rga/linux/rga"
 ENV GLSLC_PATH="/app/shaderc/glslc"
