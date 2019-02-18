@@ -141,18 +141,18 @@ RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/v
 	./setup-env.sh && ./build_tools.sh
 
 # Download and extract signing tool
-WORKDIR /
-RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.3/dxil-signing-0_1_3.zip && \
+WORKDIR /signing
+RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.3/dxil-signing-0_1_3.zip --no-check-certificate && \
 	unzip -q signing.zip; exit 0
-RUN mv dxil-signing-0_1_3 signing
+RUN rm signing.zip
 
 # Download and extract Linux and Windows binaries of AMD RGA
 WORKDIR /rga
-RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-linux-2.0.1.tgz && \
+RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-linux-2.0.1.tgz --no-check-certificate && \
 	tar zxf rga_linux.tgz && \
 	mv rga-2.0.1.* linux && \
 	rm rga_linux.tgz && \
-	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-windows-x64-2.0.1.zip && \
+	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-windows-x64-2.0.1.zip --no-check-certificate && \
 	unzip -q rga_windows.zip; exit 0
 RUN mv bin windows && \
 	# Remove GUI binaries
