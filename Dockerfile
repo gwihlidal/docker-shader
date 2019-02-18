@@ -36,9 +36,9 @@ ENV EFFCEE_BRANCH=master
 ENV EFFCEE_REPO=https://github.com/google/effcee.git
 ENV EFFCEE_COMMIT=b83b58d177b797edd1f94c5f10837f2cc2863f0a
 
-ENV WINE_BRANCH=dxil
-ENV WINE_REPO=https://github.com/gwihlidal/wine.git
-ENV WINE_COMMIT=052778ed354f39f688ecbda488a9164afd76484c
+ENV WINE_BRANCH=master
+ENV WINE_REPO=https://github.com/wine-mirror/wine.git
+ENV WINE_COMMIT=06531b1d9898ba3ac3b7c69d6192682202606f8f
 
 ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
@@ -142,7 +142,7 @@ RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/v
 
 # Download and extract signing tool
 WORKDIR /signing
-RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.3/dxil-signing-0_1_3.zip --no-check-certificate && \
+RUN wget -O signing.zip https://github.com/gwihlidal/dxil-signing/releases/download/0.1.4/dxil-signing-0_1_4.zip --no-check-certificate && \
 	unzip -q signing.zip; exit 0
 RUN rm signing.zip
 
