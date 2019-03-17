@@ -151,12 +151,14 @@ WORKDIR /rga
 RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.1/rga-linux-2.1.tgz --no-check-certificate && \
 	tar zxf rga_linux.tgz && \
 	mv rga-2.1.* linux && \
-	rm rga_linux.tgz && \
-	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.1/rga-windows-x64-2.1.zip --no-check-certificate && \
+	rm rga_linux.tgz
+
+WORKDIR /rga/windows
+RUN wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.1/rga-windows-x64-2.1.zip --no-check-certificate && \
 	unzip -q rga_windows.zip; exit 0
-RUN mv bin windows && \
-	# Remove GUI binaries
-	rm -f /rga/rga_windows.zip && \
+
+# Remove GUI binaries
+RUN rm -f /rga/windows/rga_windows.zip && \
 	rm -f /rga/windows/Qt* && \
 	rm -f /rga/windows/RadeonGPUAnalyzerGUI.exe && \
 	rm -fr /rga/windows/iconengines && \
