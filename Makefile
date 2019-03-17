@@ -1,5 +1,5 @@
 NS = gwihlidal
-VERSION ?= latest
+VERSION ?= vk_rt8
 
 REPO = docker-shader
 NAME = docker-shader
