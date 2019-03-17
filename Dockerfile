@@ -4,29 +4,29 @@
 
 FROM ubuntu:bionic as builder
 
-ENV DXC_BRANCH=NV_ray_tracing_final
-ENV DXC_REPO=https://github.com/gwihlidal/DirectXShaderCompiler.git
-ENV DXC_COMMIT=bf1bb935034b398396434a094a3d0650b34f3514
+ENV DXC_BRANCH=master
+ENV DXC_REPO=https://github.com/Microsoft/DirectXShaderCompiler.git
+ENV DXC_COMMIT=b2b9185ca5bd9fc58b272f2929131b4f4f4adb7d
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
-ENV SHADERC_COMMIT=419517b1595ffcf14c6098c3c1af09e7033e09df
+ENV SHADERC_COMMIT=4b8446fc1703fc47330655869d8e68d264bb9ec4
 
 ENV GOOGLE_TEST_BRANCH=master
 ENV GOOGLE_TEST_REPO=https://github.com/google/googletest.git
-ENV GOOGLE_TEST_COMMIT=d850e144710e330070b756c009749dc7a7302301
+ENV GOOGLE_TEST_COMMIT=8b6d3f9c4a774bef3081195d422993323b6bb2e0
 
 ENV GLSLANG_BRANCH=master
-ENV GLSLANG_REPO=https://github.com/google/glslang.git
-ENV GLSLANG_COMMIT=9983f99e87ab0b6608b236ea59bcf873f90e1435
+ENV GLSLANG_REPO=https://github.com/KhronosGroup/glslang.git
+ENV GLSLANG_COMMIT=80c36be4a9c58e87b4fc8383548d77fe962c145f
 
 ENV SPV_TOOLS_BRANCH=master
 ENV SPV_TOOLS_REPO=https://github.com/KhronosGroup/SPIRV-Tools.git
-ENV SPV_TOOLS_COMMIT=6d20f625702698dda6b5cda29dfadb9aa1f40092
+ENV SPV_TOOLS_COMMIT=07f80c4df1b0619ee484c38e79a7ad71f672ca14
 
 ENV SPV_HEADERS_BRANCH=master
 ENV SPV_HEADERS_REPO=https://github.com/KhronosGroup/SPIRV-Headers.git
-ENV SPV_HEADERS_COMMIT=8bea0a266ac9b718aa0818d9e3a47c0b77c2cb23
+ENV SPV_HEADERS_COMMIT=03a081524afabdde274d885880c2fef213e46a59
 
 ENV RE2_BRANCH=master
 ENV RE2_REPO=https://github.com/google/re2.git
@@ -44,7 +44,7 @@ ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
 ENV SMOLV_COMMIT=9a787d1354a9e43c9ea6027cd310ce2a2fd78901
 
-ENV VULKAN_SDK=1.1.97.0
+ENV VULKAN_SDK=1.1.101.0
 
 # Prevents annoying debconf errors during builds
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -148,11 +148,11 @@ RUN rm signing.zip
 
 # Download and extract Linux and Windows binaries of AMD RGA
 WORKDIR /rga
-RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-linux-2.0.1.tgz --no-check-certificate && \
+RUN wget -O rga_linux.tgz https://github.com/GPUOpen-Tools/RGA/releases/download/2.1/rga-linux-2.1.tgz --no-check-certificate && \
 	tar zxf rga_linux.tgz && \
-	mv rga-2.0.1.* linux && \
+	mv rga-2.1.* linux && \
 	rm rga_linux.tgz && \
-	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.0.1/rga-windows-x64-2.0.1.zip --no-check-certificate && \
+	wget -O rga_windows.zip https://github.com/GPUOpen-Tools/RGA/releases/download/2.1/rga-windows-x64-2.1.zip --no-check-certificate && \
 	unzip -q rga_windows.zip; exit 0
 RUN mv bin windows && \
 	# Remove GUI binaries
