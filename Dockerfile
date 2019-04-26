@@ -7,7 +7,7 @@ FROM ubuntu:bionic as builder
 
 ENV DXC_BRANCH=master
 ENV DXC_REPO=https://github.com/gwihlidal/DirectXShaderCompiler.git
-ENV DXC_COMMIT=c0d22933db7b244f57b2388bc2418830badcd0b0
+ENV DXC_COMMIT=a117e417f18d7ab829abc5c6903416f7bd0b2183
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
@@ -39,13 +39,13 @@ ENV EFFCEE_COMMIT=b83b58d177b797edd1f94c5f10837f2cc2863f0a
 
 ENV WINE_BRANCH=master
 ENV WINE_REPO=https://github.com/wine-mirror/wine.git
-ENV WINE_COMMIT=06531b1d9898ba3ac3b7c69d6192682202606f8f
+ENV WINE_COMMIT=85826158947637f790b68742a5448c483f47234f
 
 ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
 ENV SMOLV_COMMIT=9a787d1354a9e43c9ea6027cd310ce2a2fd78901
 
-ENV VULKAN_SDK=1.1.101.0
+ENV VULKAN_SDK=1.1.106.0
 
 # Prevents annoying debconf errors during builds
 ARG DEBIAN_FRONTEND="noninteractive"
