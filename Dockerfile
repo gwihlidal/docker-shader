@@ -59,6 +59,8 @@ RUN apt-get update && \
 		cmake \
 		ninja-build \
 		python \
+		python3-dev \
+		python3-pip \
 		wget \
 		unzip \
 		# Required for Wine
@@ -74,46 +76,52 @@ RUN apt-get update && \
 		software-properties-common \
 	&& apt autoclean \
 	&& apt clean \
-	&& apt autoremove
+	&& apt autoremove \
+	&& cd /usr/local/bin \
+	&& ln -s /usr/bin/python3 python \
+	&& pip3 install --upgrade pip future
 
-# Download and build DXC
-RUN git clone --recurse-submodules -b ${DXC_BRANCH} ${DXC_REPO} /dxc && cd /dxc \
-	git checkout ${DXC_COMMIT} && \
-	git reset --hard && \
-	mkdir -p /dxc/build && cd /dxc/build && \
-	cmake ../ -GNinja -DCMAKE_BUILD_TYPE=Release $(cat ../utils/cmake-predefined-config-params) && \
-	ninja
+# Download and build Vulkan SDK
+WORKDIR /
+RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK}.tar.gz && \
+	tar zxf vulkan.tgz && \
+	mv ${VULKAN_SDK} vulkan && \
+	rm vulkan.tgz && \
+	cd /vulkan && \
+	chmod +x setup-env.sh && \
+	chmod +x build_tools.sh && \
+	./setup-env.sh && ./build_tools.sh
 
 # Download shaderc repository and dependencies
-RUN git clone --recurse-submodules -b ${SHADERC_BRANCH} ${SHADERC_REPO} /shaderc && cd /shaderc \
-	git checkout ${SHADERC_COMMIT} && git reset --hard && \
-	mkdir -p /shaderc/third_party && cd /shaderc/third_party && \
-	#
-	git clone --recurse-submodules -b ${GOOGLE_TEST_BRANCH} ${GOOGLE_TEST_REPO} googletest && \
-	cd googletest && git checkout ${GOOGLE_TEST_COMMIT} && git reset --hard && cd .. && \
-	#
-	git clone --recurse-submodules -b ${GLSLANG_BRANCH} ${GLSLANG_REPO} glslang && \
-	cd glslang && git checkout ${GLSLANG_COMMIT} && git reset --hard && cd .. && \
-	#
-	git clone --recurse-submodules -b ${SPV_TOOLS_BRANCH} ${SPV_TOOLS_REPO} spirv-tools && \
-	cd spirv-tools && git checkout ${SPV_TOOLS_COMMIT} && git reset --hard && cd .. && \
-	#
-	git clone --recurse-submodules -b ${SPV_HEADERS_BRANCH} ${SPV_HEADERS_REPO} spirv-headers && \
-	cd spirv-headers && git checkout ${SPV_HEADERS_COMMIT} && git reset --hard && cd .. && \
-	#
-	git clone --recurse-submodules -b ${RE2_BRANCH} ${RE2_REPO} re2 && \
-	cd re2 && git checkout ${RE2_COMMIT} && git reset --hard && cd .. && \
-	#
-	git clone --recurse-submodules -b ${EFFCEE_BRANCH} ${EFFCEE_REPO} effcee && \
-	cd effcee && git checkout ${EFFCEE_COMMIT} && git reset --hard && cd ..
+#RUN git clone --recurse-submodules -b ${SHADERC_BRANCH} ${SHADERC_REPO} /shaderc && cd /shaderc \
+#	git checkout ${SHADERC_COMMIT} && git reset --hard && \
+#	mkdir -p /shaderc/third_party && cd /shaderc/third_party && \
+#	#
+#	git clone --recurse-submodules -b ${GOOGLE_TEST_BRANCH} ${GOOGLE_TEST_REPO} googletest && \
+#	cd googletest && git checkout ${GOOGLE_TEST_COMMIT} && git reset --hard && cd .. && \
+#	#
+#	git clone --recurse-submodules -b ${GLSLANG_BRANCH} ${GLSLANG_REPO} glslang && \
+#	cd glslang && git checkout ${GLSLANG_COMMIT} && git reset --hard && cd .. && \
+#	#
+#	git clone --recurse-submodules -b ${SPV_TOOLS_BRANCH} ${SPV_TOOLS_REPO} spirv-tools && \
+#	cd spirv-tools && git checkout ${SPV_TOOLS_COMMIT} && git reset --hard && cd .. && \
+#	#
+#	git clone --recurse-submodules -b ${SPV_HEADERS_BRANCH} ${SPV_HEADERS_REPO} spirv-headers && \
+#	cd spirv-headers && git checkout ${SPV_HEADERS_COMMIT} && git reset --hard && cd .. && \
+#	#
+#	git clone --recurse-submodules -b ${RE2_BRANCH} ${RE2_REPO} re2 && \
+#	cd re2 && git checkout ${RE2_COMMIT} && git reset --hard && cd .. && \
+#	#
+#	git clone --recurse-submodules -b ${EFFCEE_BRANCH} ${EFFCEE_REPO} effcee && \
+#	cd effcee && git checkout ${EFFCEE_COMMIT} && git reset --hard && cd ..
 
 # Build shaderc
-RUN mkdir -p /shaderc/build && cd /shaderc/build && \
-	cmake -GNinja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr/local \
-    .. && \
-	ninja install
+#RUN mkdir -p /shaderc/build && cd /shaderc/build && \
+#	cmake -GNinja \
+#	-DCMAKE_BUILD_TYPE=Release \
+#	-DCMAKE_INSTALL_PREFIX=/usr/local \
+#	.. && \
+#	ninja install
 
 # Download and build SMOL-V
 WORKDIR /smol-v
@@ -130,16 +138,13 @@ RUN git clone --recurse-submodules -b ${WINE_BRANCH} ${WINE_REPO} /wine_src && \
 	make -j8 && \
 	make install
 
-# Download and build Vulkan SDK
-WORKDIR /
-RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK}.tar.gz && \
-	tar zxf vulkan.tgz && \
-	mv ${VULKAN_SDK} vulkan && \
-	rm vulkan.tgz && \
-	cd /vulkan && \
-	chmod +x setup-env.sh && \
-	chmod +x build_tools.sh && \
-	./setup-env.sh && ./build_tools.sh
+# Download and build DXC
+RUN git clone --recurse-submodules -b ${DXC_BRANCH} ${DXC_REPO} /dxc && cd /dxc \
+	git checkout ${DXC_COMMIT} && \
+	git reset --hard && \
+	mkdir -p /dxc/build && cd /dxc/build && \
+	cmake ../ -GNinja -DCMAKE_BUILD_TYPE=Release $(cat ../utils/cmake-predefined-config-params) && \
+	ninja
 
 # Download and extract signing tool
 WORKDIR /signing
@@ -175,12 +180,12 @@ FROM ubuntu:bionic
 
 # Apply updates
 RUN apt update && \
-    apt install --no-install-recommends -y  \
-	  # Required for Wine
-	  libpng-dev \
-    # Clean up
+	apt install --no-install-recommends -y  \
+		# Required for Wine
+		libpng-dev \
+	# Clean up
 	&& apt clean \
-    && apt autoremove
+	&& apt autoremove
 
 # Copy DXC binaries from `builder` stage into final stage
 WORKDIR /app/dxc
@@ -190,8 +195,8 @@ RUN ln -s /app/dxc/bin/dxc-3.7 /app/dxc/bin/dxc
 RUN ln -s /app/dxc/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so
 
 # Copy glslc binary from `builder` stage into final stage
-WORKDIR /app/shaderc
-COPY --from=builder /shaderc/build/glslc/glslc /app/shaderc/glslc
+#WORKDIR /app/shaderc
+#COPY --from=builder /shaderc/build/glslc/glslc /app/shaderc/glslc
 
 # Copy SMOL-V binaries from `builder` stage into final stage
 WORKDIR /app/smol-v
@@ -223,7 +228,8 @@ ENV FXC_PATH="/app/fxc/fxc.exe"
 ENV SIGN_PATH="/app/signing/dxil-val.exe"
 ENV RGA_WIN_PATH="/app/rga/windows/rga.exe"
 ENV RGA_NIX_PATH="/app/rga/linux/rga"
-ENV GLSLC_PATH="/app/shaderc/glslc"
+#ENV GLSLC_PATH="/app/shaderc/glslc"
+ENV GLSLC_PATH="/app/vulkan/bin/glslc"
 ENV SMOLV_PATH="/app/smol-v/smolv"
 ENV WINE_PATH="/app/wine/bin/wine64"
 ENV VULKAN_PATH="/app/vulkan"
