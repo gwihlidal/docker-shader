@@ -11,35 +11,11 @@ ENV DXC_COMMIT=a117e417f18d7ab829abc5c6903416f7bd0b2183
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git
-ENV SHADERC_COMMIT=4b8446fc1703fc47330655869d8e68d264bb9ec4
-
-ENV GOOGLE_TEST_BRANCH=master
-ENV GOOGLE_TEST_REPO=https://github.com/google/googletest.git
-ENV GOOGLE_TEST_COMMIT=8b6d3f9c4a774bef3081195d422993323b6bb2e0
-
-ENV GLSLANG_BRANCH=master
-ENV GLSLANG_REPO=https://github.com/KhronosGroup/glslang.git
-ENV GLSLANG_COMMIT=80c36be4a9c58e87b4fc8383548d77fe962c145f
-
-ENV SPV_TOOLS_BRANCH=master
-ENV SPV_TOOLS_REPO=https://github.com/KhronosGroup/SPIRV-Tools.git
-ENV SPV_TOOLS_COMMIT=07f80c4df1b0619ee484c38e79a7ad71f672ca14
-
-ENV SPV_HEADERS_BRANCH=master
-ENV SPV_HEADERS_REPO=https://github.com/KhronosGroup/SPIRV-Headers.git
-ENV SPV_HEADERS_COMMIT=03a081524afabdde274d885880c2fef213e46a59
-
-ENV RE2_BRANCH=master
-ENV RE2_REPO=https://github.com/google/re2.git
-ENV RE2_COMMIT=79ef3b2d31f06493f687ef9e947d9632bad54b9b
-
-ENV EFFCEE_BRANCH=master
-ENV EFFCEE_REPO=https://github.com/google/effcee.git
-ENV EFFCEE_COMMIT=b83b58d177b797edd1f94c5f10837f2cc2863f0a
+ENV SHADERC_COMMIT=6805e5544d6c3733e941754376f44d0d5b61309f
 
 ENV WINE_BRANCH=master
 ENV WINE_REPO=https://github.com/wine-mirror/wine.git
-ENV WINE_COMMIT=85826158947637f790b68742a5448c483f47234f
+ENV WINE_COMMIT=6e3f39a4c59fd529c7b532dcde1bb8c37c467b35
 
 ENV SMOLV_BRANCH=master
 ENV SMOLV_REPO=https://github.com/aras-p/smol-v.git
@@ -52,9 +28,10 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 # Download libraries and tools
 RUN apt-get update && \
-	apt-get install -y \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y \
 		software-properties-common \
 		build-essential \
+		locales \
 		git \
 		cmake \
 		ninja-build \
@@ -76,10 +53,28 @@ RUN apt-get update && \
 		software-properties-common \
 	&& apt autoclean \
 	&& apt clean \
-	&& apt autoremove \
-	&& cd /usr/local/bin \
-	&& ln -s /usr/bin/python3 python \
-	&& pip3 install --upgrade pip future
+	&& apt autoremove
+
+# Download shaderc repository and dependencies
+RUN git clone --recurse-submodules -b ${SHADERC_BRANCH} ${SHADERC_REPO} /shaderc && cd /shaderc \
+	git checkout ${SHADERC_COMMIT} && git reset --hard && \
+	python3 ./utils/git-sync-deps
+
+# Set the locale (needed for python3 and shaderc build scripts)
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+	dpkg-reconfigure --frontend=noninteractive locales && \
+	update-locale LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8 
+
+# Build shaderc
+RUN mkdir -p /shaderc/build && cd /shaderc/build && \
+	cmake -GNinja \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/usr/local \
+	-DSHADERC_SKIP_TESTS=ON \
+	-DSPIRV_SKIP_TESTS=ON \
+	.. && \
+	ninja install
 
 # Download and build Vulkan SDK
 WORKDIR /
@@ -91,37 +86,6 @@ RUN wget -O vulkan.tgz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK}/linux/v
 	chmod +x setup-env.sh && \
 	chmod +x build_tools.sh && \
 	./setup-env.sh && ./build_tools.sh
-
-# Download shaderc repository and dependencies
-#RUN git clone --recurse-submodules -b ${SHADERC_BRANCH} ${SHADERC_REPO} /shaderc && cd /shaderc \
-#	git checkout ${SHADERC_COMMIT} && git reset --hard && \
-#	mkdir -p /shaderc/third_party && cd /shaderc/third_party && \
-#	#
-#	git clone --recurse-submodules -b ${GOOGLE_TEST_BRANCH} ${GOOGLE_TEST_REPO} googletest && \
-#	cd googletest && git checkout ${GOOGLE_TEST_COMMIT} && git reset --hard && cd .. && \
-#	#
-#	git clone --recurse-submodules -b ${GLSLANG_BRANCH} ${GLSLANG_REPO} glslang && \
-#	cd glslang && git checkout ${GLSLANG_COMMIT} && git reset --hard && cd .. && \
-#	#
-#	git clone --recurse-submodules -b ${SPV_TOOLS_BRANCH} ${SPV_TOOLS_REPO} spirv-tools && \
-#	cd spirv-tools && git checkout ${SPV_TOOLS_COMMIT} && git reset --hard && cd .. && \
-#	#
-#	git clone --recurse-submodules -b ${SPV_HEADERS_BRANCH} ${SPV_HEADERS_REPO} spirv-headers && \
-#	cd spirv-headers && git checkout ${SPV_HEADERS_COMMIT} && git reset --hard && cd .. && \
-#	#
-#	git clone --recurse-submodules -b ${RE2_BRANCH} ${RE2_REPO} re2 && \
-#	cd re2 && git checkout ${RE2_COMMIT} && git reset --hard && cd .. && \
-#	#
-#	git clone --recurse-submodules -b ${EFFCEE_BRANCH} ${EFFCEE_REPO} effcee && \
-#	cd effcee && git checkout ${EFFCEE_COMMIT} && git reset --hard && cd ..
-
-# Build shaderc
-#RUN mkdir -p /shaderc/build && cd /shaderc/build && \
-#	cmake -GNinja \
-#	-DCMAKE_BUILD_TYPE=Release \
-#	-DCMAKE_INSTALL_PREFIX=/usr/local \
-#	.. && \
-#	ninja install
 
 # Download and build SMOL-V
 WORKDIR /smol-v
@@ -195,8 +159,8 @@ RUN ln -s /app/dxc/bin/dxc-3.7 /app/dxc/bin/dxc
 RUN ln -s /app/dxc/lib/libdxcompiler.so.3.7 /app/dxc/lib/libdxcompiler.so
 
 # Copy glslc binary from `builder` stage into final stage
-#WORKDIR /app/shaderc
-#COPY --from=builder /shaderc/build/glslc/glslc /app/shaderc/glslc
+WORKDIR /app/shaderc
+COPY --from=builder /shaderc/build/glslc/glslc /app/shaderc/glslc
 
 # Copy SMOL-V binaries from `builder` stage into final stage
 WORKDIR /app/smol-v
@@ -228,8 +192,7 @@ ENV FXC_PATH="/app/fxc/fxc.exe"
 ENV SIGN_PATH="/app/signing/dxil-val.exe"
 ENV RGA_WIN_PATH="/app/rga/windows/rga.exe"
 ENV RGA_NIX_PATH="/app/rga/linux/rga"
-#ENV GLSLC_PATH="/app/shaderc/glslc"
-ENV GLSLC_PATH="/app/vulkan/bin/glslc"
+ENV GLSLC_PATH="/app/shaderc/glslc"
 ENV SMOLV_PATH="/app/smol-v/smolv"
 ENV WINE_PATH="/app/wine/bin/wine64"
 ENV VULKAN_PATH="/app/vulkan"
