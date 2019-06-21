@@ -4,14 +4,14 @@ Docker image with a range of shader compilers available
 
 Hub: https://hub.docker.com/r/gwihlidal/docker-shader/
 
-Extensive documentation:
+## Extensive documentation:
 
 - https://www.wihlidal.com/blog/pipeline/2018-09-15-linux-dxc-docker/
 - https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
 - https://www.wihlidal.com/blog/pipeline/2018-09-17-linux-fxc-docker/
 - https://www.wihlidal.com/blog/pipeline/2018-12-28-containerized_shader_compilers/
 
-Updating Compilers:
+## Updating Compilers:
 
 The latest commit hashes can be queried using the following script:
 
@@ -53,4 +53,5 @@ docker push gwihlidal/docker-shader:9
 Note, you won't have permission to push to the `gwihlidal` namespace on Docker Hub, so make sure to use your own account or custom container registry like https://cloud.google.com/container-registry/
 
 Example of a version update:
+
 https://github.com/gwihlidal/docker-shader/commit/b1231046b7509400da4f4ffeba8743e76d8bfc4c
