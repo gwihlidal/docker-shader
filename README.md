@@ -52,4 +52,5 @@ docker push gwihlidal/docker-shader:9
 
 Note, you won't have permission to push to the `gwihlidal` namespace on Docker Hub, so make sure to use your own account or custom container registry like https://cloud.google.com/container-registry/
 
-Example of a version update: https://github.com/gwihlidal/docker-shader/commit/b1231046b7509400da4f4ffeba8743e76d8bfc4c
+Example of a version update:
+https://github.com/gwihlidal/docker-shader/commit/b1231046b7509400da4f4ffeba8743e76d8bfc4c
