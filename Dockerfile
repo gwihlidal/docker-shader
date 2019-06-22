@@ -7,7 +7,7 @@ FROM ubuntu:bionic as builder
 
 ENV DXC_BRANCH=master
 ENV DXC_REPO=https://github.com/gwihlidal/DirectXShaderCompiler.git
-ENV DXC_COMMIT=a6189cee038b9e91ebb22b2305367a66aa001413
+ENV DXC_COMMIT=2eb78334942e0240b949189b2794b6bf74cb51af
 
 ENV SHADERC_BRANCH=master
 ENV SHADERC_REPO=https://github.com/google/shaderc.git

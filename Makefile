@@ -1,5 +1,5 @@
 NS = gwihlidal
-VERSION ?= 10
+VERSION ?= 11
 
 REPO = docker-shader
 NAME = docker-shader
